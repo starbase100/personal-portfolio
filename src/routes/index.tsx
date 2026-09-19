@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUpRight, MapPin, Moon, Network, Sparkles, Sun } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import portraitAsset from "@/assets/mojalefa-portrait.jpeg.asset.json";
 import dayLandscape from "@/assets/highveld-day.jpg";
@@ -120,7 +120,7 @@ function Portfolio() {
       <div className={`custom-cursor ${cursor.label ? "cursor-expanded" : ""}`} style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}>{cursor.label}</div>
       <ShipJourney />
 
-      <header className="sky-hero" id="main-content" style={{ "--hero-progress": heroProgress } as React.CSSProperties}>
+      <header className="sky-hero" id="main-content" style={{ "--hero-progress": heroProgress } as CSSProperties}>
         <img src={dayLandscape} alt="Sunlit South African mountain landscape with green highveld vegetation" width={1920} height={1280} className="sky-image sky-image-day" />
         <img src={nightLandscape} alt="Moonlit South African mountain landscape beneath stars and a crescent moon" width={1920} height={1280} className="sky-image sky-image-night" />
         <div className="sky-overlay" />
