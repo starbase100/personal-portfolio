@@ -88,7 +88,7 @@ function Portfolio() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset["theme"] = theme;
     window.localStorage.setItem("portfolio-theme", theme);
   }, [theme]);
 
