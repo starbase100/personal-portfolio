@@ -124,6 +124,7 @@ function Portfolio() {
         <img src={dayLandscape} alt="Sunlit South African mountain landscape with green highveld vegetation" width={1920} height={1280} className="sky-image sky-image-day" />
         <img src={nightLandscape} alt="Moonlit South African mountain landscape beneath stars and a crescent moon" width={1920} height={1280} className="sky-image sky-image-night" />
         <div className="sky-overlay" />
+        <div className="celestial-moon" aria-hidden="true" />
         <div className="data-field" aria-hidden="true">{Array.from({ length: 16 }, (_, index) => <i key={index} />)}</div>
         <div className="hero-content">
           <div className="hero-topline"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span className="location"><MapPin size={13} aria-hidden="true" />JOHANNESBURG · ZA</span></div>

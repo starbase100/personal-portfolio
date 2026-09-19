@@ -85,6 +85,8 @@ a { color: inherit; text-decoration: none; }
 .sky-image-night { opacity: 0; } [data-theme="dark"] .sky-image-day { opacity: 0; } [data-theme="dark"] .sky-image-night { opacity: 1; }
 .sky-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in oklab, var(--canvas) 42%, transparent), transparent 66%), linear-gradient(0deg, color-mix(in oklab, var(--canvas) 20%, transparent), transparent 48%); transition: background .6s; }
 [data-theme="dark"] .sky-overlay { background: linear-gradient(90deg, color-mix(in oklab, var(--night) 38%, transparent), transparent 68%), linear-gradient(0deg, color-mix(in oklab, var(--night) 34%, transparent), transparent 48%); }
+.celestial-moon { position: absolute; z-index: 1; top: 13%; right: 10%; width: clamp(2.75rem, 5vw, 5rem); aspect-ratio: 1; border-radius: 50%; opacity: 0; background: var(--canvas); box-shadow: -.9rem .25rem 0 .1rem color-mix(in oklab, var(--night) 96%, transparent), 0 0 2.5rem color-mix(in oklab, var(--canvas) 45%, transparent); transform: rotate(-14deg); transition: opacity .8s; }
+[data-theme="dark"] .celestial-moon { opacity: .88; }
 .hero-content { position: relative; z-index: 2; max-width: 1600px; height: 100%; margin: auto; padding: 7rem clamp(1.25rem, 5vw, 5rem) 2.5rem; display: flex; flex-direction: column; justify-content: space-between; transform: scale(calc(1 - var(--hero-progress) * .075)) translateY(calc(var(--hero-progress) * -2rem)); filter: blur(calc(var(--hero-progress) * 1.5px)); opacity: calc(1 - var(--hero-progress) * .42); transform-origin: center 45%; will-change: transform, opacity, filter; }
 .hero-topline, .section-kicker, .footer-line { display: flex; justify-content: space-between; gap: 2rem; font: 600 .66rem/1.4 var(--font-mono); text-transform: uppercase; }
 .location { display: inline-flex; align-items: center; gap: .45rem; }
@@ -161,6 +163,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 760px) {
   .custom-cursor { display: none; }.floating-nav { width: calc(100% - 1rem); justify-content: space-between; top: .75rem; padding: .35rem; }.nav-links { flex: 1; justify-content: space-between; }.floating-nav a { padding: .65rem .55rem; font-size: .53rem; }.nav-divider { margin: 0 .2rem; }.theme-toggle { width: 2.25rem; height: 2.25rem; }
   .sky-hero { min-height: 640px; }.hero-content { padding-top: 5.5rem; }.hero-topline { gap: .75rem; font-size: .53rem; }.location { flex-shrink: 0; }.hero-content h1 { font-size: clamp(3.15rem, 14.5vw, 5.5rem); }.kinetic-line { white-space: normal; }.hero-footer { align-items: start; }.hero-footer p { max-width: 78%; font-size: .82rem; }
+  .celestial-moon { top: 14%; right: 9%; }
   .statement-section { min-height: 75vh; padding-top: 6rem; }.interactive-statement { margin: 4rem 0; font-size: 3.5rem; }.capability-row { grid-template-columns: 1fr 1fr; gap: 1rem; }
   .work-section, .research-section, .about-section { padding-top: 6rem; padding-bottom: 6rem; }.section-heading { grid-template-columns: 15% 85%; margin-bottom: 4rem; }.section-intro { grid-column: 2; margin-top: 1.25rem; }.section-heading h2 { font-size: 5rem; }
   .project-row { grid-template-columns: 12% 88%; padding: 2rem 0; }.project-meta { grid-column: 2; margin-top: 1.25rem; }.project-row:hover { transform: none; border-radius: 0; box-shadow: none; }
