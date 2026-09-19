@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUpRight, Network, Sparkles } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowUpRight, MapPin, Moon, Network, Sparkles, Sun } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import portraitAsset from "@/assets/mojalefa-portrait.jpeg.asset.json";
-import skyImage from "@/assets/atmospheric-sky.jpg";
+import dayLandscape from "@/assets/highveld-day.jpg";
+import nightLandscape from "@/assets/highveld-night.jpg";
 import spaceshipImage from "@/assets/spaceship.png";
 
 export const Route = createFileRoute("/")({
@@ -34,6 +35,18 @@ const research = [
 
 const navItems = ["work", "research", "about", "contact"];
 
+function KineticLine({ children, start = 0 }: { children: string; start?: number }) {
+  return (
+    <span className="kinetic-line">
+      {children.split("").map((letter, index) => (
+        <span key={`${letter}-${index}`} style={{ animationDelay: `${(start + index) * 0.025}s` }}>
+          {letter === " " ? "\u00a0" : letter}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function ShipJourney() {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -61,36 +74,61 @@ function ShipJourney() {
 
 function Portfolio() {
   const [active, setActive] = useState("work");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [heroProgress, setHeroProgress] = useState(0);
   const [cursor, setCursor] = useState({ x: -100, y: -100, label: "" });
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const stored = window.localStorage.getItem("portfolio-theme");
+    const initialTheme = stored === "dark" || stored === "light"
+      ? stored
+      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    setTheme(initialTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset["theme"] = theme;
+    window.localStorage.setItem("portfolio-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
     const onMove = (event: PointerEvent) => setCursor((current) => ({ ...current, x: event.clientX, y: event.clientY }));
+    const onScroll = () => setHeroProgress(Math.min(1, window.scrollY / Math.max(window.innerHeight * 0.9, 1)));
     window.addEventListener("pointermove", onMove);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     const observer = new IntersectionObserver((entries) => {
       const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (visible?.target.id) setActive(visible.target.id);
     }, { threshold: [0.25, 0.5] });
     navItems.forEach((id) => { const node = document.getElementById(id); if (node) observer.observe(node); });
-    return () => { window.removeEventListener("pointermove", onMove); observer.disconnect(); };
+    return () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("scroll", onScroll); observer.disconnect(); };
   }, []);
 
   return (
     <main ref={mainRef} className="portfolio-shell">
       <a href="#main-content" className="skip-link">Skip to content</a>
       <nav className="floating-nav" aria-label="Portfolio sections">
-        {navItems.map((item) => <a key={item} href={`#${item}`} className={active === item ? "active" : ""}>{item}</a>)}
+        <div className="nav-links">{navItems.map((item) => <a key={item} href={`#${item}`} className={active === item ? "active" : ""}>{item}</a>)}</div>
+        <span className="nav-divider" aria-hidden="true" />
+        <button className="theme-toggle" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`} title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
+          <Sun className="theme-sun" size={16} aria-hidden="true" />
+          <Moon className="theme-moon" size={16} aria-hidden="true" />
+        </button>
       </nav>
       <div className={`custom-cursor ${cursor.label ? "cursor-expanded" : ""}`} style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}>{cursor.label}</div>
       <ShipJourney />
 
-      <header className="sky-hero" id="main-content">
-        <img src={skyImage} alt="Sunlit clouds across a deep blue atmosphere" width={1920} height={1280} className="sky-image" />
+      <header className="sky-hero" id="main-content" style={{ "--hero-progress": heroProgress } as CSSProperties}>
+        <img src={dayLandscape} alt="Sunlit South African mountain landscape with green highveld vegetation" width={1920} height={1280} className="sky-image sky-image-day" />
+        <img src={nightLandscape} alt="Moonlit South African mountain landscape beneath stars and a crescent moon" width={1920} height={1280} className="sky-image sky-image-night" />
         <div className="sky-overlay" />
+        <div className="celestial-moon" aria-hidden="true" />
         <div className="data-field" aria-hidden="true">{Array.from({ length: 16 }, (_, index) => <i key={index} />)}</div>
         <div className="hero-content">
-          <div className="hero-topline"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span>JOHANNESBURG · ZA</span></div>
-          <h1>I BUILD SYSTEMS<br />THAT MAKE<br /><em>COMPLEXITY USEFUL.</em></h1>
+          <div className="hero-topline"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span className="location"><MapPin size={13} aria-hidden="true" />JOHANNESBURG · ZA</span></div>
+          <h1 aria-label="I build systems that make complexity useful."><KineticLine>I BUILD SYSTEMS</KineticLine><KineticLine start={15}>THAT MAKE</KineticLine><em><KineticLine start={24}>COMPLEXITY USEFUL.</KineticLine></em></h1>
           <div className="hero-footer">
             <p>Software development, AI research and data-driven systems focused on turning complex information into useful, understandable tools.</p>
             <a href="#what-i-do">EXPLORE <ArrowDown size={14} /></a>
