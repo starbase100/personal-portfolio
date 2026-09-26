@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUpRight, MapPin, Moon, Network, Sparkles, Sun } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Camera, FlaskConical, MapPin, Moon, Network, Sparkles, Sun } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import portraitAsset from "@/assets/mojalefa-portrait.jpeg.asset.json";
-import dayLandscape from "@/assets/highveld-day.jpg";
-import nightLandscape from "@/assets/highveld-night.jpg";
-import spaceshipImage from "@/assets/spaceship.png";
+import dayLandscape from "@/assets/ukiyoe-highveld-day.jpg";
+import nightLandscape from "@/assets/ukiyoe-highveld-night.jpg";
+import spaceshipImage from "@/assets/ukiyoe-spaceship.png";
+import taxonomyArtwork from "@/assets/project-taxonomy.jpg";
+import jobFinderArtwork from "@/assets/project-job-finder.jpg";
+import futureSkillsArtwork from "@/assets/project-future-skills.jpg";
+import aiSystemsArtwork from "@/assets/project-ai-systems.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,10 +26,10 @@ export const Route = createFileRoute("/")({
 });
 
 const projects = [
-  { number: "01", title: "Taxonomy Platform", meta: "Software · Backend · Data Systems", description: "Building a system for connecting occupations, skills and specialisations." },
-  { number: "02", title: "Job Finder App", meta: "Software · AI · Data", description: "A personal project exploring job discovery and search, connected to the direction of skills-mapping work." },
-  { number: "03", title: "Future Skills Map", meta: "AI · Systems · Research", description: "An AI and data-driven initiative connecting occupations, skills and labour-market information to understand skills-development challenges." },
-  { number: "04", title: "AI Systems", meta: "AI · LLM · Software Systems", description: "Work around LLMs, NLP, document-based systems, APIs, validation and related AI software." },
+  { number: "01", title: "Taxonomy Platform", meta: "Software · Backend · Data Systems", description: "Building a system for connecting occupations, skills and specialisations.", artwork: taxonomyArtwork, alt: "Woodblock-style branching taxonomy of connected disciplines" },
+  { number: "02", title: "Job Finder App", meta: "Software · AI · Data", description: "A personal project exploring job discovery and search, connected to the direction of skills-mapping work.", artwork: jobFinderArtwork, alt: "Woodblock-style winding route toward a lantern-lit gateway" },
+  { number: "03", title: "Future Skills Map", meta: "AI · Systems · Research", description: "An AI and data-driven initiative connecting occupations, skills and labour-market information to understand skills-development challenges.", artwork: futureSkillsArtwork, alt: "Woodblock-style network of connected knowledge islands" },
+  { number: "04", title: "AI Systems", meta: "AI · LLM · Software Systems", description: "Work around LLMs, NLP, document-based systems, APIs, validation and related AI software.", artwork: aiSystemsArtwork, alt: "Woodblock-style computational wave of documents and network nodes" },
 ];
 
 const research = [
@@ -33,7 +37,7 @@ const research = [
   { number: "R/02", title: "Labour-Market Data & Skills Taxonomies", meta: "Data · AI/NLP · Research", description: "The technical, methodological, legal and ethical challenges of external labour-market and occupational data for skills-mapping systems in South Africa." },
 ];
 
-const navItems = ["work", "research", "about", "contact"];
+const navItems = ["work", "research", "about", "experimentation", "contact"];
 
 function KineticLine({ children, start = 0 }: { children: string; start?: number }) {
   return (
@@ -59,15 +63,16 @@ function ShipJourney() {
     window.addEventListener("resize", update);
     return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
   }, []);
-  const phase = progress * 5;
-  const leg = Math.min(4, Math.floor(phase));
-  const local = phase - leg;
-  const movingRight = leg % 2 === 0;
-  const x = movingRight ? 8 + local * 76 : 84 - local * 76;
+  const turns = 2.35;
+  const phase = progress * Math.PI * 2 * turns - Math.PI / 2;
+  const x = 46 + Math.sin(phase) * 38;
+  const dx = Math.cos(phase) * 38 * Math.PI * 2 * turns;
+  const dy = 82;
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
   return (
-    <div className="ship-journey" style={{ transform: `translate3d(${x}vw, ${8 + progress * 76}vh, 0)` }} aria-hidden="true">
+    <div className="ship-journey" style={{ transform: `translate3d(${x}vw, ${6 + progress * 82}vh, 0) rotate(${angle}deg)` }} aria-hidden="true">
       <span className="ship-trail" />
-      <img src={spaceshipImage} alt="" width={1152} height={576} className={movingRight ? "ship-right" : "ship-left"} />
+      <img src={spaceshipImage} alt="" width={1024} height={512} />
     </div>
   );
 }
@@ -136,7 +141,7 @@ function Portfolio() {
         </div>
       </header>
 
-      <section id="what-i-do" className="statement-section section-light">
+      <section id="what-i-do" className="statement-section section-light journey-panel">
         <div className="section-kicker"><span>01 / ORIENTATION</span><span>SYSTEMS THINKING</span></div>
         <p className="interactive-statement" aria-label="I turn complex information into useful systems.">
           {"I turn complex information into useful systems.".split("").map((letter, index) => <span key={`${letter}-${index}`} style={{ transitionDelay: `${index * 0.015}s` }}>{letter === " " ? "\u00a0" : letter}</span>)}
@@ -146,20 +151,21 @@ function Portfolio() {
         </div>
       </section>
 
-      <section id="work" className="work-section section-light">
+      <section id="work" className="work-section section-light journey-panel">
         <div className="section-heading"><span className="section-number">02</span><div><p>SELECTED SYSTEMS</p><h2>Work</h2></div><p className="section-intro">Engineering, product thinking and research-led software.</p></div>
         <div className="project-list">
           {projects.map((project) => (
             <article key={project.number} className="project-row" tabIndex={0} onPointerEnter={() => setCursor((c) => ({ ...c, label: "VIEW ↗" }))} onPointerLeave={() => setCursor((c) => ({ ...c, label: "" }))}>
               <span className="mono">{project.number}</span>
               <div><h3>{project.title}</h3><p>{project.description}</p></div>
+              <figure className="project-art"><img src={project.artwork} alt={project.alt} width={1280} height={832} loading="lazy" /></figure>
               <div className="project-meta"><span>{project.meta}</span><ArrowUpRight size={22} aria-hidden="true" /></div>
             </article>
           ))}
         </div>
       </section>
 
-      <section id="research" className="research-section">
+      <section id="research" className="research-section journey-panel">
         <div className="research-grid" aria-hidden="true" />
         <div className="section-heading dark-heading"><span className="section-number">03</span><div><p>INTERACTIVE NOTEBOOK</p><h2>Research</h2></div><p className="section-intro">Understanding the relationships between people, skills, work and systems.</p></div>
         <div className="research-body">
@@ -172,7 +178,7 @@ function Portfolio() {
         </div>
       </section>
 
-      <section id="about" className="about-section">
+      <section id="about" className="about-section journey-panel">
         <div className="sunburst" aria-hidden="true"><Sparkles /></div>
         <div className="section-heading"><span className="section-number">04</span><div><p>THE HUMAN LAYER</p><h2>About</h2></div></div>
         <div className="about-layout">
@@ -190,9 +196,23 @@ function Portfolio() {
         </div>
       </section>
 
-      <footer id="contact" className="contact-section">
+      <section id="experimentation" className="experimentation-section journey-panel">
+        <div className="experiment-wave" aria-hidden="true" />
+        <div className="section-heading">
+          <span className="section-number">05</span>
+          <div><p>OPEN STUDIO</p><h2>Experimentation</h2></div>
+          <p className="section-intro">A growing space for mini projects, photographs of my work, and things I am passionate about.</p>
+        </div>
+        <div className="experiment-grid">
+          <article tabIndex={0}><FlaskConical aria-hidden="true" /><span>01 / MINI PROJECTS</span><h3>Studies in progress</h3><p>Small builds and technical experiments will live here.</p></article>
+          <article tabIndex={0}><Camera aria-hidden="true" /><span>02 / PHOTOGRAPHY</span><h3>Through my lens</h3><p>Photographs of work, process, and the details worth keeping.</p></article>
+          <article tabIndex={0}><Sparkles aria-hidden="true" /><span>03 / PASSIONS</span><h3>Beyond the brief</h3><p>A place for the ideas and subjects that keep me curious.</p></article>
+        </div>
+      </section>
+
+      <footer id="contact" className="contact-section journey-panel">
         <div className="constellation" aria-hidden="true"><i /><i /><i /><i /><i /><svg viewBox="0 0 400 220"><path d="M45 150 L128 62 L210 132 L304 45 L360 155 L210 132 L45 150" /></svg></div>
-        <p className="mono">05 / FINAL TRANSMISSION</p>
+        <p className="mono">06 / FINAL TRANSMISSION</p>
         <h2>LET’S<br /><em>CONNECT.</em></h2>
         <p>Building systems, exploring ideas, and looking for interesting problems to work on.</p>
         <div className="pending-links" aria-label="Contact links will be added when supplied"><span>GITHUB</span><span>LINKEDIN</span><span>EMAIL</span><span>CV</span></div>
