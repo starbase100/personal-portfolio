@@ -10,4 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Use a continuous single-page journey with layered sheet transitions; this preserves the portfolio's narrative flow.
-- Keep portfolio imagery in a cohesive modern Ukiyo-e woodblock style; this is the project's defining visual language.
+- Visual language is HAOQI-inspired retro-futurist glass (see uploaded design system); effects are CSS/DOM-based with reduced-motion fallbacks, no WebGL yet.
