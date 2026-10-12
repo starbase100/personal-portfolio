@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUpRight, Camera, FlaskConical, MapPin, Moon, Network, Sparkles, Sun } from "lucide-react";
+import { ArrowUpRight, Camera, FlaskConical, MapPin, Moon, Sparkles, Sun } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import portraitAsset from "@/assets/mojalefa-portrait.jpeg.asset.json";
-import dayLandscape from "@/assets/ukiyoe-highveld-day.jpg";
-import nightLandscape from "@/assets/ukiyoe-highveld-night.jpg";
-import spaceshipImage from "@/assets/ukiyoe-spaceship.png";
-import taxonomyArtwork from "@/assets/project-taxonomy.jpg";
-import jobFinderArtwork from "@/assets/project-job-finder.jpg";
-import futureSkillsArtwork from "@/assets/project-future-skills.jpg";
-import aiSystemsArtwork from "@/assets/project-ai-systems.jpg";
+import taxonomyArt from "@/assets/rf-taxonomy.jpg";
+import jobArt from "@/assets/rf-jobfinder.jpg";
+import skillsArt from "@/assets/rf-futureskills.jpg";
+import aiArt from "@/assets/rf-aisystems.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,10 +23,10 @@ export const Route = createFileRoute("/")({
 });
 
 const projects = [
-  { number: "01", title: "Taxonomy Platform", meta: "Software · Backend · Data Systems", description: "Building a system for connecting occupations, skills and specialisations.", artwork: taxonomyArtwork, alt: "Woodblock-style branching taxonomy of connected disciplines" },
-  { number: "02", title: "Job Finder App", meta: "Software · AI · Data", description: "A personal project exploring job discovery and search, connected to the direction of skills-mapping work.", artwork: jobFinderArtwork, alt: "Woodblock-style winding route toward a lantern-lit gateway" },
-  { number: "03", title: "Future Skills Map", meta: "AI · Systems · Research", description: "An AI and data-driven initiative connecting occupations, skills and labour-market information to understand skills-development challenges.", artwork: futureSkillsArtwork, alt: "Woodblock-style network of connected knowledge islands" },
-  { number: "04", title: "AI Systems", meta: "AI · LLM · Software Systems", description: "Work around LLMs, NLP, document-based systems, APIs, validation and related AI software.", artwork: aiSystemsArtwork, alt: "Woodblock-style computational wave of documents and network nodes" },
+  { number: "01", title: "Taxonomy Platform", meta: "Software · Backend · Data Systems", description: "Building a system for connecting occupations, skills and specialisations.", art: taxonomyArt, alt: "Glass tiles forming a branching taxonomy", span: "wide" },
+  { number: "02", title: "Job Finder App", meta: "Software · AI · Data", description: "A personal project exploring job discovery and search, connected to the direction of skills-mapping work.", art: jobArt, alt: "Glass magnifier over a grid of job cards", span: "tall" },
+  { number: "03", title: "Future Skills Map", meta: "AI · Systems · Research", description: "An AI and data-driven initiative connecting occupations, skills and labour-market information to understand skills-development challenges.", art: skillsArt, alt: "Connected glass spheres forming a map", span: "tall" },
+  { number: "04", title: "AI Systems", meta: "AI · LLM · Software Systems", description: "Work around LLMs, NLP, document-based systems, APIs, validation and related AI software.", art: aiArt, alt: "Stack of glass document sheets with a glowing chip", span: "wide" },
 ];
 
 const research = [
@@ -38,58 +35,68 @@ const research = [
 ];
 
 const navItems = ["work", "research", "about", "experimentation", "contact"];
+const COLS = 14;
+const ROWS = 9;
 
-function KineticLine({ children, start = 0 }: { children: string; start?: number }) {
-  return (
-    <span className="kinetic-line">
-      {children.split("").map((letter, index) => (
-        <span key={`${letter}-${index}`} style={{ animationDelay: `${(start + index) * 0.025}s` }}>
-          {letter === " " ? "\u00a0" : letter}
-        </span>
-      ))}
-    </span>
-  );
+function ScrambleText({ text }: { text: string }) {
+  const [out, setOut] = useState(text);
+  const run = () => {
+    const glyphs = "▚▞▖▗▘▝■□01";
+    let frame = 0;
+    const id = window.setInterval(() => {
+      frame++;
+      setOut(text.split("").map((c, i) => (c === " " || i < frame ? c : glyphs[(i + frame) % glyphs.length])).join(""));
+      if (frame > text.length) { window.clearInterval(id); setOut(text); }
+    }, 22);
+  };
+  return <span onPointerEnter={run} onFocus={run}>{out}</span>;
 }
 
-function ShipJourney() {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? window.scrollY / max : 0);
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
-  }, []);
-  const turns = 2.35;
-  const phase = progress * Math.PI * 2 * turns - Math.PI / 2;
-  const x = 46 + Math.sin(phase) * 38;
-  const dx = Math.cos(phase) * 38 * Math.PI * 2 * turns;
-  const dy = 82;
-  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+function DotRevealCard({ project }: { project: (typeof projects)[number] }) {
+  const cells = Array.from({ length: COLS * ROWS }, (_, i) => {
+    const c = i % COLS, r = Math.floor(i / COLS);
+    const dx = (c + 0.5) / COLS - 0.5, dy = ((r + 0.5) / ROWS - 0.5) * (ROWS / COLS);
+    return { c, r, d: Math.hypot(dx, dy) };
+  });
   return (
-    <div className="ship-journey" style={{ transform: `translate3d(${x}vw, ${6 + progress * 82}vh, 0) rotate(${angle}deg)` }} aria-hidden="true">
-      <span className="ship-trail" />
-      <img src={spaceshipImage} alt="" width={1024} height={512} />
-    </div>
+    <article className={`project-card ${project.span}`} tabIndex={0}>
+      <div className="card-media">
+        <img className="base" src={project.art} alt={project.alt} width={1280} height={832} loading="lazy" />
+        <div className="dot-matrix" aria-hidden="true">
+          {cells.map((cell, i) => (
+            <i key={i} style={{
+              backgroundImage: `url(${project.art})`,
+              backgroundSize: `${COLS * 100}% ${ROWS * 100}%`,
+              backgroundPosition: `${(cell.c / (COLS - 1)) * 100}% ${(cell.r / (ROWS - 1)) * 100}%`,
+              transitionDelay: `${cell.d * 0.55}s`,
+            }} />
+          ))}
+        </div>
+        <span className="card-index">{project.number}</span>
+      </div>
+      <div className="card-info">
+        <h3><ScrambleText text={project.title} /></h3>
+        <ArrowUpRight size={20} aria-hidden="true" />
+        <p>{project.description}</p>
+        <span className="mono">{project.meta}</span>
+      </div>
+    </article>
   );
 }
 
 function Portfolio() {
   const [active, setActive] = useState("work");
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [heroProgress, setHeroProgress] = useState(0);
-  const [cursor, setCursor] = useState({ x: -100, y: -100, label: "" });
-  const mainRef = useRef<HTMLElement>(null);
+  const [time, setTime] = useState("");
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("portfolio-theme");
-    const initialTheme = stored === "dark" || stored === "light"
-      ? stored
-      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    setTheme(initialTheme);
+    setTheme(stored === "dark" || stored === "light" ? stored : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const tick = () => setTime(new Date().toLocaleTimeString("en-ZA", { timeZone: "Africa/Johannesburg", hour: "2-digit", minute: "2-digit" }));
+    tick();
+    const t = window.setInterval(tick, 30000);
+    return () => window.clearInterval(t);
   }, []);
 
   useEffect(() => {
@@ -98,125 +105,116 @@ function Portfolio() {
   }, [theme]);
 
   useEffect(() => {
-    const onMove = (event: PointerEvent) => setCursor((current) => ({ ...current, x: event.clientX, y: event.clientY }));
-    const onScroll = () => setHeroProgress(Math.min(1, window.scrollY / Math.max(window.innerHeight * 0.9, 1)));
+    const root = document.documentElement;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let last = window.scrollY, lastT = performance.now(), v = 0, raf = 0;
+    const loop = (now: number) => {
+      const dy = window.scrollY - last, dt = Math.max(now - lastT, 1);
+      const target = Math.max(-1, Math.min(1, dy / dt / 3));
+      v += (target - v) * (Math.abs(target) > Math.abs(v) ? 0.35 : 0.08);
+      root.style.setProperty("--scroll-v", reduce ? "0" : v.toFixed(3));
+      last = window.scrollY; lastT = now;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    const onMove = (e: PointerEvent) => {
+      root.style.setProperty("--px", (e.clientX / window.innerWidth - 0.5).toFixed(3));
+      root.style.setProperty("--py", (e.clientY / window.innerHeight - 0.5).toFixed(3));
+    };
     window.addEventListener("pointermove", onMove);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
     const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible?.target.id) setActive(visible.target.id);
-    }, { threshold: [0.25, 0.5] });
-    navItems.forEach((id) => { const node = document.getElementById(id); if (node) observer.observe(node); });
-    return () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("scroll", onScroll); observer.disconnect(); };
+      entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in-view"); });
+      const visible = entries.filter((e) => e.isIntersecting && navItems.includes(e.target.id)).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) setActive(visible.target.id);
+    }, { threshold: [0.15, 0.4] });
+    document.querySelectorAll("section, footer, .reveal").forEach((n) => observer.observe(n));
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("pointermove", onMove); observer.disconnect(); };
   }, []);
 
   return (
-    <main ref={mainRef} className="portfolio-shell">
+    <main className="rf-shell">
       <a href="#main-content" className="skip-link">Skip to content</a>
-      <nav className="floating-nav" aria-label="Portfolio sections">
+      <nav className="rf-nav" aria-label="Portfolio sections">
+        <a href="#main-content" className="brand">MTM<span>●</span></a>
         <div className="nav-links">{navItems.map((item) => <a key={item} href={`#${item}`} className={active === item ? "active" : ""}>{item}</a>)}</div>
-        <span className="nav-divider" aria-hidden="true" />
-        <button className="theme-toggle" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`} title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
-          <Sun className="theme-sun" size={16} aria-hidden="true" />
-          <Moon className="theme-moon" size={16} aria-hidden="true" />
+        <button className="theme-toggle" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
+          {theme === "light" ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
         </button>
       </nav>
-      <div className={`custom-cursor ${cursor.label ? "cursor-expanded" : ""}`} style={{ transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)` }}>{cursor.label}</div>
-      <ShipJourney />
 
-      <header className="sky-hero" id="main-content" style={{ "--hero-progress": heroProgress } as CSSProperties}>
-        <img src={dayLandscape} alt="Sunlit South African mountain landscape with green highveld vegetation" width={1920} height={1280} className="sky-image sky-image-day" />
-        <img src={nightLandscape} alt="Moonlit South African mountain landscape beneath stars and a crescent moon" width={1920} height={1280} className="sky-image sky-image-night" />
-        <div className="sky-overlay" />
-        <div className="celestial-moon" aria-hidden="true" />
-        <div className="data-field" aria-hidden="true">{Array.from({ length: 16 }, (_, index) => <i key={index} />)}</div>
-        <div className="hero-content">
-          <div className="hero-topline"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span className="location"><MapPin size={13} aria-hidden="true" />JOHANNESBURG · ZA</span></div>
-          <h1 aria-label="I build systems that make complexity useful."><KineticLine>I BUILD SYSTEMS</KineticLine><KineticLine start={15}>THAT MAKE</KineticLine><em><KineticLine start={24}>COMPLEXITY USEFUL.</KineticLine></em></h1>
-          <div className="hero-footer">
-            <p>Software development, AI research and data-driven systems focused on turning complex information into useful, understandable tools.</p>
-            <a href="#what-i-do">EXPLORE <ArrowDown size={14} /></a>
-          </div>
+      <header className="rf-hero" id="main-content" ref={heroRef}>
+        <div className="hero-meta mono">
+          <span>MOJALEFA TSWELOPELE MOLETSANE</span>
+          <span><MapPin size={12} aria-hidden="true" /> JOHANNESBURG · ZA {time && `· ${time}`}</span>
+        </div>
+        <div className="glass-stage" aria-hidden="true">
+          <span className="sticker s1" /><span className="sticker s2" /><span className="sticker s3" />
+          <div className="glass-word"><span>hello</span><i className="flare" /></div>
+        </div>
+        <h1>I build systems that make <em>complexity useful.</em></h1>
+        <div className="hero-foot">
+          <p>Software development, AI research and data-driven systems focused on turning complex information into useful, understandable tools.</p>
+          <a className="pill-btn" href="#work">See the work <ArrowUpRight size={15} /></a>
         </div>
       </header>
 
-      <section id="what-i-do" className="statement-section section-light journey-panel">
-        <div className="section-kicker"><span>01 / ORIENTATION</span><span>SYSTEMS THINKING</span></div>
-        <p className="interactive-statement" aria-label="I turn complex information into useful systems.">
-          {"I turn complex information into useful systems.".split("").map((letter, index) => <span key={`${letter}-${index}`} style={{ transitionDelay: `${index * 0.015}s` }}>{letter === " " ? "\u00a0" : letter}</span>)}
-        </p>
-        <div className="capability-row">
-          <span>SOFTWARE DEVELOPMENT</span><span>AI SYSTEMS</span><span>DATA</span><span>RESEARCH</span>
-        </div>
+      <section id="what-i-do" className="rf-intro reveal">
+        <p className="mono label">01 — ORIENTATION</p>
+        <p className="intro-statement">I turn complex information into useful systems.</p>
+        <ul className="chips">{["Software development", "AI systems", "Data", "Research"].map((c) => <li key={c}>{c}</li>)}</ul>
       </section>
 
-      <section id="work" className="work-section section-light journey-panel">
-        <div className="section-heading"><span className="section-number">02</span><div><p>SELECTED SYSTEMS</p><h2>Work</h2></div><p className="section-intro">Engineering, product thinking and research-led software.</p></div>
-        <div className="project-list">
-          {projects.map((project) => (
-            <article key={project.number} className="project-row" tabIndex={0} onPointerEnter={() => setCursor((c) => ({ ...c, label: "VIEW ↗" }))} onPointerLeave={() => setCursor((c) => ({ ...c, label: "" }))}>
-              <span className="mono">{project.number}</span>
-              <div><h3>{project.title}</h3><p>{project.description}</p></div>
-              <figure className="project-art"><img src={project.artwork} alt={project.alt} width={1280} height={832} loading="lazy" /></figure>
-              <div className="project-meta"><span>{project.meta}</span><ArrowUpRight size={22} aria-hidden="true" /></div>
-            </article>
-          ))}
-        </div>
+      <section id="work" className="rf-section">
+        <div className="sec-head"><span className="mono">02 — SELECTED SYSTEMS</span><h2>Work</h2><p>Engineering, product thinking and research-led software.</p></div>
+        <div className="project-grid">{projects.map((p) => <DotRevealCard key={p.number} project={p} />)}</div>
       </section>
 
-      <section id="research" className="research-section journey-panel">
-        <div className="research-grid" aria-hidden="true" />
-        <div className="section-heading dark-heading"><span className="section-number">03</span><div><p>INTERACTIVE NOTEBOOK</p><h2>Research</h2></div><p className="section-intro">Understanding the relationships between people, skills, work and systems.</p></div>
-        <div className="research-body">
-          <div className="network-map" aria-label="Research relationships: skills connect to occupations, industry, education and labour market">
-            <Network size={26} aria-hidden="true" />
-            <span className="node node-skills">SKILLS</span><span className="node node-occupations">OCCUPATIONS</span><span className="node node-industry">INDUSTRY</span><span className="node node-education">EDUCATION</span><span className="node node-market">LABOUR MARKET</span>
-            <svg viewBox="0 0 600 420" aria-hidden="true"><path d="M300 65 L180 185 L430 175 L270 330 M180 185 L270 330 M430 175 L270 330 M300 65 L430 175" /></svg>
+      <section id="research" className="rf-section rf-dark">
+        <div className="sec-head"><span className="mono">03 — INTERACTIVE NOTEBOOK</span><h2>Research</h2><p>Understanding the relationships between people, skills, work and systems.</p></div>
+        <div className="research-wrap">
+          <div className="node-map" aria-label="Skills connect to occupations, industry, education and labour market">
+            {["SKILLS", "OCCUPATIONS", "INDUSTRY", "EDUCATION", "LABOUR MARKET"].map((n, i) => <span key={n} className={`n n${i}`}>{n}</span>)}
+            <svg viewBox="0 0 600 400" aria-hidden="true"><path d="M300 60 L140 170 L460 170 L220 330 L380 330 L460 170 M140 170 L220 330 M300 60 L460 170" /></svg>
           </div>
-          <div className="research-list">{research.map((item) => <article key={item.number}><div><span>{item.number}</span><span>{item.meta}</span></div><h3>{item.title}</h3><p>{item.description}</p></article>)}</div>
+          <div className="research-list">{research.map((r) => <article key={r.number} tabIndex={0}><div className="mono"><span>{r.number}</span><span>{r.meta}</span></div><h3>{r.title}</h3><p>{r.description}</p></article>)}</div>
         </div>
       </section>
 
-      <section id="about" className="about-section journey-panel">
-        <div className="sunburst" aria-hidden="true"><Sparkles /></div>
-        <div className="section-heading"><span className="section-number">04</span><div><p>THE HUMAN LAYER</p><h2>About</h2></div></div>
-        <div className="about-layout">
+      <section id="about" className="rf-section">
+        <div className="sec-head"><span className="mono">04 — THE HUMAN LAYER</span><h2>About</h2></div>
+        <div className="about-grid">
+          <figure className="portrait-glass"><img src={portraitAsset.url} alt="Portrait of Mojalefa Tswelopele Moletsane" width={768} height={1024} loading="lazy" /><figcaption className="mono">MOJALEFA · JOHANNESBURG</figcaption></figure>
           <div className="about-copy">
             <p className="about-lead">I work where software, AI, data and research meet.</p>
             <p>Currently focused on software development, AI systems, data and research — including AI Software Systems Development work on the Wits–merSETA “Dark Room” project.</p>
-            <dl><div><dt>RESEARCH FOCUS</dt><dd>Skills mapping and forecasting skills-development challenges</dd></div><div><dt>EDUCATION</dt><dd>Information Technology Certificate (P-SA Software Engineering), ICITP-SA<br />BSc, Wits University</dd></div></dl>
+            <dl>
+              <div><dt className="mono">RESEARCH FOCUS</dt><dd>Skills mapping and forecasting skills-development challenges</dd></div>
+              <div><dt className="mono">EDUCATION</dt><dd>Information Technology Certificate (P-SA Software Engineering), ICITP-SA<br />BSc, Wits University</dd></div>
+            </dl>
+            <ol className="timeline">
+              <li><span className="mono">2019</span><b>Chemistry</b><small>BSc Chemistry</small></li>
+              <li><span className="mono">2022</span><b>Software Development</b><small>Software development learnership and transition into software</small></li>
+              <li><span className="mono">2026</span><b>AI · Systems · Data</b><small>AI software systems development and skills-mapping research</small></li>
+            </ol>
           </div>
-          <figure className="polaroid"><img src={portraitAsset.url} alt="Portrait of Mojalefa Tswelopele Moletsane" width={768} height={1024} loading="lazy" /><figcaption>MOJALEFA · JOHANNESBURG</figcaption></figure>
-        </div>
-        <div className="timeline" aria-label="Career timeline">
-          <article><span>2019</span><h3>Chemistry</h3><p>BSc Chemistry</p></article>
-          <article><span>2022</span><h3>Software Development</h3><p>Software development learnership and transition into software</p></article>
-          <article><span>2026</span><h3>AI · Systems · Data</h3><p>AI software systems development and skills-mapping research</p></article>
         </div>
       </section>
 
-      <section id="experimentation" className="experimentation-section journey-panel">
-        <div className="experiment-wave" aria-hidden="true" />
-        <div className="section-heading">
-          <span className="section-number">05</span>
-          <div><p>OPEN STUDIO</p><h2>Experimentation</h2></div>
-          <p className="section-intro">A growing space for mini projects, photographs of my work, and things I am passionate about.</p>
-        </div>
-        <div className="experiment-grid">
-          <article tabIndex={0}><FlaskConical aria-hidden="true" /><span>01 / MINI PROJECTS</span><h3>Studies in progress</h3><p>Small builds and technical experiments will live here.</p></article>
-          <article tabIndex={0}><Camera aria-hidden="true" /><span>02 / PHOTOGRAPHY</span><h3>Through my lens</h3><p>Photographs of work, process, and the details worth keeping.</p></article>
-          <article tabIndex={0}><Sparkles aria-hidden="true" /><span>03 / PASSIONS</span><h3>Beyond the brief</h3><p>A place for the ideas and subjects that keep me curious.</p></article>
+      <section id="experimentation" className="rf-section">
+        <div className="sec-head"><span className="mono">05 — OPEN STUDIO</span><h2>Experimentation</h2><p>A growing space for mini projects, photographs of my work, and things I am passionate about.</p></div>
+        <div className="exp-grid">
+          <article tabIndex={0}><FlaskConical aria-hidden="true" /><span className="mono">01 / MINI PROJECTS</span><h3>Studies in progress</h3><p>Small builds and technical experiments will live here.</p></article>
+          <article tabIndex={0}><Camera aria-hidden="true" /><span className="mono">02 / PHOTOGRAPHY</span><h3>Through my lens</h3><p>Photographs of work, process, and the details worth keeping.</p></article>
+          <article tabIndex={0}><Sparkles aria-hidden="true" /><span className="mono">03 / PASSIONS</span><h3>Beyond the brief</h3><p>A place for the ideas and subjects that keep me curious.</p></article>
         </div>
       </section>
 
-      <footer id="contact" className="contact-section journey-panel">
-        <div className="constellation" aria-hidden="true"><i /><i /><i /><i /><i /><svg viewBox="0 0 400 220"><path d="M45 150 L128 62 L210 132 L304 45 L360 155 L210 132 L45 150" /></svg></div>
-        <p className="mono">06 / FINAL TRANSMISSION</p>
-        <h2>LET’S<br /><em>CONNECT.</em></h2>
+      <footer id="contact" className="rf-contact">
+        <p className="mono">06 — FINAL TRANSMISSION</p>
+        <h2 style={{ "--d": 0 } as CSSProperties}>Let’s <em>connect.</em></h2>
         <p>Building systems, exploring ideas, and looking for interesting problems to work on.</p>
-        <div className="pending-links" aria-label="Contact links will be added when supplied"><span>GITHUB</span><span>LINKEDIN</span><span>EMAIL</span><span>CV</span></div>
-        <div className="footer-line"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span>© 2026</span></div>
+        <div className="pending-links" aria-label="Contact links will be added when supplied">{["GITHUB", "LINKEDIN", "EMAIL", "CV"].map((l) => <span key={l}>{l}</span>)}</div>
+        <div className="footer-line mono"><span>MOJALEFA TSWELOPELE MOLETSANE</span><span>© 2026</span></div>
       </footer>
     </main>
   );
