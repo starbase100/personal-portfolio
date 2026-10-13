@@ -7,6 +7,9 @@ import taxonomyArt from "@/assets/rf-taxonomy.jpg";
 import jobArt from "@/assets/rf-jobfinder.jpg";
 import skillsArt from "@/assets/rf-futureskills.jpg";
 import aiArt from "@/assets/rf-aisystems.jpg";
+import dayLandscape from "@/assets/ukiyoe-highveld-day.jpg";
+import nightLandscape from "@/assets/ukiyoe-highveld-night.jpg";
+import shipImage from "@/assets/ukiyoe-spaceship.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -84,6 +87,34 @@ function DotRevealCard({ project }: { project: (typeof projects)[number] }) {
   );
 }
 
+function ShipJourney() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cur = 0, raf = 0, angle = 0;
+    const pos = (p: number) => {
+      const t = p * Math.PI * 2 * 2.25 - Math.PI / 2;
+      return { x: 50 + Math.sin(t) * 38, y: 12 + p * 70 + Math.sin(t * 2) * 4 };
+    };
+    const loop = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const target = max > 0 ? window.scrollY / max : 0;
+      cur += (target - cur) * (reduce ? 1 : 0.08);
+      const a = pos(cur), b = pos(Math.min(cur + 0.004, 1.004));
+      const dx = (b.x - a.x) * window.innerWidth, dy = (b.y - a.y) * window.innerHeight;
+      const goal = Math.atan2(dy, dx) * 180 / Math.PI;
+      let diff = goal - angle; diff = ((diff + 540) % 360) - 180;
+      if (Math.hypot(dx, dy) > 0.5) angle += diff * 0.12;
+      const flip = Math.abs(((angle % 360) + 360) % 360 - 180) < 90 ? -1 : 1;
+      if (ref.current) ref.current.style.transform = `translate3d(${a.x}vw, ${a.y}vh, 0) rotate(${angle}deg) scaleY(${flip})`;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <div ref={ref} className="ship-journey" aria-hidden="true"><span className="ship-trail" /><img src={shipImage} alt="" width={1024} height={512} /></div>;
+}
+
 function Portfolio() {
   const [active, setActive] = useState("work");
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -141,6 +172,13 @@ function Portfolio() {
           {theme === "light" ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
         </button>
       </nav>
+
+      <div className="rf-backdrop" aria-hidden="true">
+        <img src={dayLandscape} alt="" className="land land-day" width={1920} height={1280} />
+        <img src={nightLandscape} alt="" className="land land-night" width={1920} height={1280} />
+        <div className="land-wash" />
+      </div>
+      <ShipJourney />
 
       <header className="rf-hero" id="main-content" ref={heroRef}>
         <div className="hero-meta mono">
