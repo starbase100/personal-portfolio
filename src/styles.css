@@ -223,3 +223,21 @@ a { color: inherit; text-decoration: none; }
   .reveal, .rf-section, .rf-contact { opacity: 1; transform: none; }
   .card-media, .glass-word { transform: none !important; }
 }
+
+/* Ukiyo-e journey backdrop + ship */
+.rf-shell { position: relative; isolation: isolate; }
+.rf-backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+.land { position: absolute; inset: -4% 0 0; width: 100%; height: 108%; object-fit: cover; transform: translateY(calc(var(--scroll-v,0) * -6px)); transition: opacity 1s var(--ease); }
+.land-night { opacity: 0; }
+:root[data-theme="dark"] .land-night { opacity: 1; }
+:root[data-theme="dark"] .land-day { opacity: 0; }
+.land-wash { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0 35%, color-mix(in oklab, var(--background) 35%, transparent)); }
+.rf-hero h1, .hero-meta, .hero-foot { text-shadow: 0 1px 12px color-mix(in oklab, var(--background) 70%, transparent); }
+.hero-foot { background: var(--glass); border: 1px solid var(--glass-edge); border-radius: var(--radius); padding: 1.25rem; backdrop-filter: blur(18px) saturate(150%); }
+.rf-intro, .rf-section:not(.rf-dark), .rf-contact { margin: 0 clamp(.5rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2rem); border-radius: calc(var(--radius) * 1.6); background: color-mix(in oklab, var(--background) 78%, transparent); border: 1px solid var(--glass-edge); backdrop-filter: blur(22px) saturate(140%); box-shadow: 0 30px 80px -30px oklch(0.18 0.03 260 / .35); }
+.rf-dark { margin: 0 clamp(.5rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2rem); border-radius: calc(var(--radius) * 1.6); background: color-mix(in oklab, var(--dark-surface) 88%, transparent); backdrop-filter: blur(22px); }
+.ship-journey { position: fixed; left: 0; top: 0; z-index: 40; width: clamp(70px, 8vw, 120px); margin: -2rem 0 0 -3.5rem; pointer-events: none; will-change: transform; }
+.ship-journey img { width: 100%; display: block; filter: drop-shadow(0 8px 10px oklch(0.18 0.03 260 / .3)); }
+.ship-trail { position: absolute; right: 70%; top: 50%; width: 140%; height: 3px; transform: translateY(-50%); border-radius: 3px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--tangerine) 60%, transparent)); filter: blur(2px); }
+@media (prefers-reduced-motion: reduce) { .ship-trail { display: none; } }
+@media (max-width: 760px) { .ship-journey { width: 56px; } }
